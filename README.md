@@ -1,5 +1,4 @@
 # JBeacon
----
 
 ## Overview
 JBeacon is a <b>Java network polling library</b> implemented using the Java NIO package. JBeacon supports blocking & non-blocking network polling at a consistent rate using the ScheduledExecutorService.
