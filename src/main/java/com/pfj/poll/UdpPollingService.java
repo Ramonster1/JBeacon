@@ -33,7 +33,7 @@ public class UdpPollingService implements PollingService {
 		try (DatagramChannel datagramChannel = DatagramChannel.open()) {
 			InetSocketAddress inetSocketAddress = new InetSocketAddress(0);
 
-			logger.debug("Connecting to {}", inetSocketAddress);
+			logger.debug("Binding to {}", inetSocketAddress);
 			datagramChannel.bind(inetSocketAddress);
 			datagramChannel.connect(serverSocketAddress);
 
