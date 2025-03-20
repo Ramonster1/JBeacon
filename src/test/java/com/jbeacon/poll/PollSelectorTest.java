@@ -1,6 +1,6 @@
-package com.pfj.poll;
+package com.jbeacon.poll;
 
-import com.pfj.command.PollResponseCommand;
+import com.jbeacon.command.PollResponseCommand;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
 

@@ -1,4 +1,4 @@
-package com.pfj.poll;
+package com.jbeacon.poll;
 
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;

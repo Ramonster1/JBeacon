@@ -1,6 +1,6 @@
-package com.pfj.poll.scheduling;
+package com.jbeacon.poll.scheduling;
 
-import com.pfj.poll.PollingService;
+import com.jbeacon.poll.PollingService;
 import org.junit.jupiter.api.Test;
 
 import java.io.IOException;

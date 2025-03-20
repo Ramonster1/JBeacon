@@ -1,4 +1,4 @@
-package com.pfj.command;
+package com.jbeacon.command;
 
 import java.nio.ByteBuffer;
 

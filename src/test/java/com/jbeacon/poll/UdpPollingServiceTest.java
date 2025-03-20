@@ -1,7 +1,7 @@
-package com.pfj.poll;
+package com.jbeacon.poll;
 
-import com.pfj.command.PollResponseCommand;
-import com.pfj.exception.SelectorClosedException;
+import com.jbeacon.command.PollResponseCommand;
+import com.jbeacon.exception.SelectorClosedException;
 import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.AutoClose;
 import org.junit.jupiter.api.BeforeAll;
