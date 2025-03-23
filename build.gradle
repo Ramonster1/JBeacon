@@ -15,6 +15,9 @@ dependencies {
     implementation 'org.apache.logging.log4j:log4j-core:2.23.1'
     implementation 'com.lmax:disruptor:4.0.0'
 
+    // Aeron
+    implementation 'io.aeron:aeron-all:1.47.4'
+
     // Lombok
     compileOnly 'org.projectlombok:lombok:1.18.36'
     annotationProcessor 'org.projectlombok:lombok:1.18.36'
@@ -27,6 +30,12 @@ dependencies {
     testImplementation 'org.junit.jupiter:junit-jupiter'
     testRuntimeOnly 'org.junit.platform:junit-platform-launcher'
     testImplementation 'org.mockito:mockito-core:5.16.0'
+}
+
+tasks.withType(JavaExec).configureEach {
+    // Starting from Agrona 2.0.0 it uses jdk.internal.misc.Unsafe and java.util.zip.CRC32C which requires the following JVM args to be added
+    jvmArgs "--add-opens", "java.base/jdk.internal.misc=ALL-UNNAMED",
+            "--add-opens", "java.base/java.util.zip=ALL-UNNAMED"
 }
 
 test {
