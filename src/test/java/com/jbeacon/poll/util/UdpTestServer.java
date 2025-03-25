@@ -64,6 +64,7 @@ public class UdpTestServer implements AutoCloseable {
 
 	public void updateTestServerResponse() {
 		var now = new Date();
+		setDate(now.toString());
 		setData(now.toString().getBytes(CHARSET));
 	}
 }
