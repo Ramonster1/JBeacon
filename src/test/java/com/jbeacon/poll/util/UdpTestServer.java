@@ -1,4 +1,4 @@
-package com.jbeacon.poll;
+package com.jbeacon.poll.util;
 
 import lombok.Getter;
 import lombok.Setter;
@@ -7,9 +7,14 @@ import java.io.IOException;
 import java.net.DatagramPacket;
 import java.net.DatagramSocket;
 import java.net.SocketException;
+import java.nio.charset.Charset;
+import java.util.Date;
+import java.util.concurrent.TimeUnit;
+import java.util.concurrent.atomic.AtomicBoolean;
 
 public class UdpTestServer implements AutoCloseable {
-	private static final int TIMEOUT = 1_000;
+	public static final Charset CHARSET = Charset.defaultCharset();
+	private static final int TIMEOUT = Math.toIntExact(TimeUnit.SECONDS.toMillis(10));
 	@Getter
 	private final DatagramSocket socket;
 	@Getter
@@ -18,11 +23,12 @@ public class UdpTestServer implements AutoCloseable {
 	@Getter
 	@Setter
 	private String date;
-	private volatile boolean running = true;
+	private final AtomicBoolean running = new AtomicBoolean(true);
 
 	public UdpTestServer() throws SocketException {
 		this.socket = new DatagramSocket(0);
 		socket.setSoTimeout(TIMEOUT);
+		updateTestServerResponse();
 	}
 
 	public void startServer() {
@@ -36,7 +42,7 @@ public class UdpTestServer implements AutoCloseable {
 				DatagramPacket packet = new DatagramPacket(data, data.length, request.getAddress(), request.getPort());
 				socket.send(packet);
 			} catch (SocketException e) {
-				if (!running) {
+				if (!running.get()) {
 					// SocketException is expected on socket close, break the loop
 					break;
 				} else {
@@ -52,8 +58,13 @@ public class UdpTestServer implements AutoCloseable {
 
 	@Override
 	public void close() {
-		running = false; // Signal the server to stop
+		running.set(false); // Signal the server to stop
 		socket.close();
+	}
+
+	public void updateTestServerResponse() {
+		var now = new Date();
+		setData(now.toString().getBytes(CHARSET));
 	}
 }
 

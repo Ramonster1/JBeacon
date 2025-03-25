@@ -40,5 +40,6 @@ tasks.withType(JavaExec).configureEach {
 
 test {
     useJUnitPlatform()
-    jvmArgs("-XX:+EnableDynamicAgentLoading")
+    jvmArgs("-XX:+EnableDynamicAgentLoading", "--add-opens", "java.base/jdk.internal.misc=ALL-UNNAMED",
+            "--add-opens", "java.base/java.util.zip=ALL-UNNAMED")
 }

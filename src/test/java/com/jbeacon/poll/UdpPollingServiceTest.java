@@ -2,6 +2,7 @@ package com.jbeacon.poll;
 
 import com.jbeacon.command.PollResponseCommand;
 import com.jbeacon.exception.SelectorClosedException;
+import com.jbeacon.poll.util.UdpTestServer;
 import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.AutoClose;
 import org.junit.jupiter.api.BeforeAll;
@@ -12,14 +13,12 @@ import java.net.SocketException;
 import java.nio.ByteBuffer;
 import java.nio.channels.Selector;
 import java.nio.channels.UnresolvedAddressException;
-import java.nio.charset.Charset;
-import java.util.Date;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 
 class UdpPollingServiceTest {
-	private final static Charset CHARSET = Charset.defaultCharset();
+
 	private static Thread serverThread;
 	@AutoClose
 	private static UdpTestServer testServer;
@@ -38,15 +37,9 @@ class UdpPollingServiceTest {
 			assertEquals(testServer.getData().length, buffer.limit());
 			assertEquals(100, buffer.capacity());
 
-			String bufferData = new String(buffer.array(), buffer.position(), buffer.limit(), CHARSET);
+			String bufferData = new String(buffer.array(), buffer.position(), buffer.limit(), UdpTestServer.CHARSET);
 			assertEquals(testServer.getDate(), bufferData);
 		};
-	}
-
-	private void updateTestServerResponse() {
-		var now = new Date();
-		testServer.setDate(now.toString());
-		testServer.setData(now.toString().getBytes(CHARSET));
 	}
 
 	@AfterAll
@@ -68,7 +61,7 @@ class UdpPollingServiceTest {
 
 	@Test
 	void testBlockingPollBufferReadyForDraining() throws Exception {
-		updateTestServerResponse();
+		testServer.updateTestServerResponse();
 
 		var blockingPoller = UdpPollingService.builder()
 				.serverSocketAddress(localhostAddress)
@@ -113,7 +106,7 @@ class UdpPollingServiceTest {
 
 		// test
 		for (int i = 0; i < 10; i++) {
-			updateTestServerResponse();
+			testServer.updateTestServerResponse();
 			blockingPoller.poll();
 		}
 	}
@@ -134,7 +127,7 @@ class UdpPollingServiceTest {
 
 			// test
 			for (int i = 0; i < 10; i++) {
-				updateTestServerResponse();
+				testServer.updateTestServerResponse();
 				nonblockingPoller.poll();
 			}
 		}
