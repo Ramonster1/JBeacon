@@ -1,8 +1,8 @@
 package com.jbeacon.poll;
 
-import com.jbeacon.command.PollResponseCommand;
+import com.jbeacon.command.OnPollResponseCommand;
 
 import java.nio.ByteBuffer;
 
-public record ProcessPollAttachment(PollResponseCommand pollResponseCommand, ByteBuffer buffer) {
+public record ProcessPollAttachment(OnPollResponseCommand onPollResponseCommand, ByteBuffer buffer) {
 }

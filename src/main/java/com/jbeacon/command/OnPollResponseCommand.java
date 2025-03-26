@@ -7,7 +7,7 @@ import java.nio.ByteBuffer;
  * The command is applied to a flipped {@link ByteBuffer}.
  */
 @FunctionalInterface
-public interface PollResponseCommand {
+public interface OnPollResponseCommand {
 
 	void execute(ByteBuffer buffer);
 }

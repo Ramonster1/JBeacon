@@ -1,6 +1,6 @@
 package com.jbeacon.poll;
 
-import com.jbeacon.command.PollResponseCommand;
+import com.jbeacon.command.OnPollResponseCommand;
 import com.jbeacon.exception.SelectorClosedException;
 import com.jbeacon.poll.util.UdpTestServer;
 import org.junit.jupiter.api.AfterAll;
@@ -23,7 +23,7 @@ class UdpPollingServiceTest {
 	@AutoClose
 	private static UdpTestServer testServer;
 	private static InetSocketAddress localhostAddress;
-	private static PollResponseCommand testBufferReadyForDrainingCommand;
+	private static OnPollResponseCommand testBufferReadyForDrainingCommand;
 
 	@BeforeAll
 	static void setUp() throws SocketException {
@@ -67,7 +67,7 @@ class UdpPollingServiceTest {
 				.serverSocketAddress(localhostAddress)
 				.outBuffer(ByteBuffer.allocate(1))
 				.inBuffer(ByteBuffer.allocate(100))
-				.pollResponseCommand(testBufferReadyForDrainingCommand)
+				.onPollResponseCommand(testBufferReadyForDrainingCommand)
 				.blocks(true)
 				.build();
 
@@ -84,7 +84,7 @@ class UdpPollingServiceTest {
 					.serverSocketAddress(localhostAddress)
 					.outBuffer(ByteBuffer.allocate(1))
 					.inBuffer(ByteBuffer.allocate(100))
-					.pollResponseCommand(testBufferReadyForDrainingCommand)
+					.onPollResponseCommand(testBufferReadyForDrainingCommand)
 					.blocks(false)
 					.pollSelector(pollSelector)
 					.build();
@@ -100,7 +100,7 @@ class UdpPollingServiceTest {
 				.serverSocketAddress(localhostAddress)
 				.outBuffer(ByteBuffer.allocate(1))
 				.inBuffer(ByteBuffer.allocate(100))
-				.pollResponseCommand(testBufferReadyForDrainingCommand)
+				.onPollResponseCommand(testBufferReadyForDrainingCommand)
 				.blocks(true)
 				.build();
 
@@ -120,7 +120,7 @@ class UdpPollingServiceTest {
 					.serverSocketAddress(localhostAddress)
 					.outBuffer(ByteBuffer.allocate(1))
 					.inBuffer(ByteBuffer.allocate(100))
-					.pollResponseCommand(testBufferReadyForDrainingCommand)
+					.onPollResponseCommand(testBufferReadyForDrainingCommand)
 					.blocks(false)
 					.pollSelector(pollSelector)
 					.build();

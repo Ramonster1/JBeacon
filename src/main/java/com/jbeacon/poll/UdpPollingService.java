@@ -1,6 +1,6 @@
 package com.jbeacon.poll;
 
-import com.jbeacon.command.PollResponseCommand;
+import com.jbeacon.command.OnPollResponseCommand;
 import com.jbeacon.exception.SelectorClosedException;
 import lombok.Builder;
 import org.apache.logging.log4j.LogManager;
@@ -23,7 +23,7 @@ public class UdpPollingService implements PollingService {
 	private final ByteBuffer outBuffer;
 	@Builder.Default
 	private final boolean blocks = true;
-	private final PollResponseCommand pollResponseCommand;
+	private final OnPollResponseCommand onPollResponseCommand;
 	private PollSelector pollSelector;
 	private ScheduledExecutorService scheduledExecutor;
 
@@ -49,16 +49,16 @@ public class UdpPollingService implements PollingService {
 
 				logger.info("Received response with buffer {}", outBuffer);
 
-				pollResponseCommand.execute(inBuffer);
+				onPollResponseCommand.execute(inBuffer);
 			} else {
 				if (pollSelector == null || pollSelector.selector() == null || !pollSelector.selector().isOpen()) {
 					logger.warn("Selector is null or not open");
-					throw new SelectorClosedException("Selector is null or closed");
+					throw new SelectorClosedException("Selector is " + (pollSelector == null ? "null" : "closed"));
 				}
 
 				Selector selector = pollSelector.selector();
 				datagramChannel.configureBlocking(false);
-				ProcessPollAttachment attachment = new ProcessPollAttachment(pollResponseCommand, inBuffer);
+				ProcessPollAttachment attachment = new ProcessPollAttachment(onPollResponseCommand, inBuffer);
 				datagramChannel.register(selector, SelectionKey.OP_READ, attachment);
 
 				logger.info("Registered channel, waiting for response");

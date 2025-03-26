@@ -27,7 +27,7 @@ public record PollSelector(Selector selector, Long timeout) implements AutoClose
 					logger.info("Received response buffer: {}", buffer);
 					logger.debug("Response buffer: {}", buffer.array());
 
-					attachment.pollResponseCommand().execute(buffer);
+					attachment.onPollResponseCommand().execute(buffer);
 				}
 			}
 		}
