@@ -1,7 +1,6 @@
-package com.jbeacon.poll.util;
+package com.jbeacon.util;
 
 import lombok.Getter;
-import lombok.Setter;
 
 import java.io.IOException;
 import java.net.DatagramPacket;
@@ -17,13 +16,11 @@ public class UdpTestServer implements AutoCloseable {
 	private static final int TIMEOUT = Math.toIntExact(TimeUnit.SECONDS.toMillis(10));
 	@Getter
 	private final DatagramSocket socket;
+	private final AtomicBoolean running = new AtomicBoolean(true);
 	@Getter
-	@Setter
 	private byte[] data;
 	@Getter
-	@Setter
 	private String date;
-	private final AtomicBoolean running = new AtomicBoolean(true);
 
 	public UdpTestServer() throws SocketException {
 		this.socket = new DatagramSocket(0);
@@ -58,14 +55,22 @@ public class UdpTestServer implements AutoCloseable {
 
 	@Override
 	public void close() {
-		running.set(false); // Signal the server to stop
+		// Signal the server to stop
+		running.set(false);
 		socket.close();
 	}
 
-	public void updateTestServerResponse() {
+	/**
+	 * This method is synchronized to ensure that updates to the `date` and `data` fields
+	 * are thread-safe in a multithreaded environment. Since multiple threads might
+	 * attempt to call this method concurrently (e.g., while the server is running and
+	 * processing requests), synchronization guarantees that only one thread at a time
+	 * can modify these shared fields, preventing race conditions and ensuring data consistency.
+	 */
+	public synchronized void updateTestServerResponse() {
 		var now = new Date();
-		setDate(now.toString());
-		setData(now.toString().getBytes(CHARSET));
+		this.date = now.toString();
+		this.data = now.toString().getBytes(CHARSET);
 	}
 }
 

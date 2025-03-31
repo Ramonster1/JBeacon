@@ -31,6 +31,11 @@ public class UdpPollingService implements PollingService {
 		logger.info("Polling in {} mode", blocks ? "blocking" : "non-blocking");
 
 		try (DatagramChannel datagramChannel = DatagramChannel.open()) {
+			if (!blocks && (pollSelector == null || pollSelector.selector() == null || !pollSelector.selector().isOpen())) {
+				logger.warn("Selector is null or not open");
+				throw new SelectorClosedException("Selector is " + (pollSelector == null ? "null" : "closed"));
+			}
+
 			InetSocketAddress inetSocketAddress = new InetSocketAddress(0);
 
 			logger.debug("Binding to {}", inetSocketAddress);
@@ -51,11 +56,6 @@ public class UdpPollingService implements PollingService {
 
 				onPollResponseCommand.execute(inBuffer);
 			} else {
-				if (pollSelector == null || pollSelector.selector() == null || !pollSelector.selector().isOpen()) {
-					logger.warn("Selector is null or not open");
-					throw new SelectorClosedException("Selector is " + (pollSelector == null ? "null" : "closed"));
-				}
-
 				Selector selector = pollSelector.selector();
 				datagramChannel.configureBlocking(false);
 				ProcessPollAttachment attachment = new ProcessPollAttachment(onPollResponseCommand, inBuffer);
