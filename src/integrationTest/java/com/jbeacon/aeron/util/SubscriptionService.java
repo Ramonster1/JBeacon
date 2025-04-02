@@ -24,17 +24,19 @@ public class SubscriptionService implements AutoCloseable {
 	private static final int FRAGMENT_COUNT_LIMIT = 10;
 	private final int id;
 	private final String channel;
+	private final FragmentHandler fragmentHandler;
 	private final AtomicBoolean running = new AtomicBoolean(false);
 	private MediaDriver driver;
 	private Aeron aeron;
 	private Subscription subscription;
 
-	public SubscriptionService(int id, String channel) {
+	public SubscriptionService(int id, String channel, FragmentHandler fragmentHandler) {
 		this.id = id;
 		this.channel = channel;
+		this.fragmentHandler = fragmentHandler;
 	}
 
-	public void startSubscribing(FragmentHandler fragmentHandler) {
+	public void startSubscribing() {
 		logger.info("Starting subscriber {}", id);
 
 		driver = MediaDriver.launchEmbedded();
@@ -52,7 +54,11 @@ public class SubscriptionService implements AutoCloseable {
 		subscription = aeron.addSubscription(channel, STREAM_ID);
 		logger.info("Subscribed to {} on stream id {}", channel, STREAM_ID);
 
-		subscriberLoop(fragmentHandler).accept(subscription);
+		subscriberLoop().accept(subscription);
+	}
+
+	public boolean isConnected() {
+		return subscription != null && subscription.isConnected();
 	}
 
 	public void close() throws InterruptedException {
@@ -88,29 +94,16 @@ public class SubscriptionService implements AutoCloseable {
 	}
 
 	/**
-	 * Return a reusable, parametrised event loop that calls a default {@link IdleStrategy} when no messages
-	 * are received.
-	 *
-	 * @param fragmentHandler to be called back for each message.
-	 * @return loop function.
-	 */
-	private Consumer<Subscription> subscriberLoop(final FragmentHandler fragmentHandler) {
-		return subscriberLoop(fragmentHandler, busySpinIdleStrategy());
-	}
-
-	/**
 	 * Return a reusable, parametrised event loop that calls and idler when no messages are received.
 	 *
-	 * @param fragmentHandler to be called back for each message.
-	 * @param idleStrategy    to use for loop.
 	 * @return loop function.
 	 */
-	private Consumer<Subscription> subscriberLoop(final FragmentHandler fragmentHandler, final IdleStrategy idleStrategy) {
+	private Consumer<Subscription> subscriberLoop() {
 		return (subscription) -> {
 			final FragmentAssembler assembler = new FragmentAssembler(fragmentHandler);
 			while (running.get()) {
 				final int fragmentsRead = subscription.poll(assembler, FRAGMENT_COUNT_LIMIT);
-				idleStrategy.idle(fragmentsRead);
+				busySpinIdleStrategy().idle(fragmentsRead);
 			}
 		};
 	}

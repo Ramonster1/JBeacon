@@ -6,9 +6,9 @@ import java.util.concurrent.TimeUnit;
 /**
  * A helper class to run JUnit assertions asynchronously within a separate thread.
  * <p>
- * If running assertions in a separate thread spawned from the testing thread, than an AssertionError will be
- * thrown but will not fail the unit test. This helper class will catch and rethrow the AssertionError in the main test
- * thread.
+ * If running assertions in a separate thread spawned from the testing thread, then if an AssertionError will be
+ * thrown, it will not fail the unit test. This helper class will catch and rethrow the AssertionError in the main test
+ * thread to ensure a test is failed by an AssertionError.
  */
 public class AsyncAssertionExecutor {
 
