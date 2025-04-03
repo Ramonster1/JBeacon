@@ -121,6 +121,10 @@ UdpPollingService pollingService = UdpPollingService.builder()
         .build();
 ```
 
+## Further features
+
+TCP support using AsynchronousSocketChannel & Aeron backpressure strategies are in the pipeline. 
+
 ---
 
 ## License

@@ -23,8 +23,9 @@ import java.nio.ByteBuffer;
  * administrative actions, the command retries the operation. Critical states like a closed publication or position overflow result
  * in an exception being thrown.
  * <p>
- * This record is particularly useful in Aeron-based systems to efficiently send incoming data by directly utilizing
- * a claimed segment of the Aeron publication buffer.
+ * If Publication.BACK_PRESSURED is returned from tryClaim(), then the response from the poll will be ignored.
+ * <p>
+ * The Publication.tryClaim() method can provide lower-latency than the Publication.offer().
  */
 public record AeronOnPollResponseTryClaimCommand(Publication publication,
 												 BufferClaim bufferClaim) implements OnPollResponseCommand {

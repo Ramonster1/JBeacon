@@ -8,35 +8,27 @@ import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
 import java.nio.ByteBuffer;
-import java.util.function.Consumer;
 
 
 /**
- * Implements the {@link OnPollResponseCommand} interface to encapsulate a command
- * that interacts with Aeron publications by offering data contained in a {@link ByteBuffer}.
+ * Represents an implementation of the {@link OnPollResponseCommand} interface that encapsulates a command
+ * using the Aeron {@link Publication#offer} mechanism for message delivery.
  * <p>
- * The command uses an Aeron {@link Publication} to send data provided through a {@link ByteBuffer}
- * wrapped into a {@link DirectBuffer}. The result of the {@link Publication#offer} operation
- * can be captured using an optional callback {@link Consumer} that processes the resulting position.
+ * This record facilitates interaction between a flipped {@link ByteBuffer} and an Aeron {@link Publication}
+ * by wrapping the buffer content into a {@link DirectBuffer} and making an offer call to the publication.
+ * The command processes the result of the {@link Publication#offer} operation and handles various outcomes,
+ * including scenarios such as backpressure, connection issues, administrative actions, or reaching position limits.
  * <p>
- * This record is particularly useful for processing and publishing incoming data in Aeron-based
- * UDP polling mechanisms or systems where responses need to be offered directly to an Aeron publication.
+ * In the event of a transient state like an administrative action, the command retries the operation until
+ * a terminal state is reached or the operation succeeds. Terminal states such as a closed publication or
+ * exceeding the maximum allowed position result in exceptions being thrown.
+ * <p>
+ * If Publication.BACK_PRESSURED is returned from offer(), then the response from the poll will be ignored.
  */
 public record AeronOnPollResponseOfferCommand(Publication publication,
 											  DirectBuffer directBuffer) implements OnPollResponseCommand {
 	private static final Logger logger = LogManager.getLogger();
 
-	/**
-	 * Executes the command by wrapping the provided {@link ByteBuffer} into a {@link DirectBuffer}
-	 * and offering its data via the Aeron {@link Publication}.
-	 * <p>
-	 * When calling Publication.offer() a return value greater than 0 indicates the message was sent.
-	 * Negative values indicate that the message has not been enqueued for sending.The result of the offer operation
-	 * can be optionally processed using the provided callback.
-	 *
-	 * @param byteBuffer the {@link ByteBuffer} containing the data to be offered via the {@link Publication}.
-	 *                   The buffer's current position and limit are used for the offer operation.
-	 */
 	@Override
 	public void execute(ByteBuffer byteBuffer) {
 		directBuffer.wrap(byteBuffer, byteBuffer.position(), byteBuffer.limit());
