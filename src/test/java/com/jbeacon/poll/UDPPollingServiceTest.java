@@ -9,11 +9,11 @@ import java.nio.channels.UnresolvedAddressException;
 
 import static org.junit.jupiter.api.Assertions.assertThrows;
 
-class UdpPollingServiceTest {
+class UDPPollingServiceTest {
 
 	@Test
 	void testNonblockingPollWithNoSelectorFails() {
-		var nonBlockingPoller = UdpPollingService.builder()
+		var nonBlockingPoller = UDPPollingService.builder()
 				.serverSocketAddress(null)
 				.outBuffer(ByteBuffer.allocate(1))
 				.inBuffer(ByteBuffer.allocate(4))
@@ -27,7 +27,7 @@ class UdpPollingServiceTest {
 	void testPollWithInvalidAddress() {
 		InetSocketAddress invalidAddress = new InetSocketAddress("invalid.host", 12345);
 
-		var poller = UdpPollingService.builder()
+		var poller = UDPPollingService.builder()
 				.serverSocketAddress(invalidAddress)
 				.outBuffer(ByteBuffer.allocate(1))
 				.inBuffer(ByteBuffer.allocate(100))
@@ -36,5 +36,4 @@ class UdpPollingServiceTest {
 
 		assertThrows(UnresolvedAddressException.class, poller::poll);
 	}
-
 }

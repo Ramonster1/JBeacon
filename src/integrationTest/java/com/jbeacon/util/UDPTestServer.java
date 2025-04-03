@@ -11,7 +11,7 @@ import java.util.Date;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicBoolean;
 
-public class UdpTestServer implements AutoCloseable {
+public class UDPTestServer implements AutoCloseable {
 	public static final Charset CHARSET = Charset.defaultCharset();
 	private static final int TIMEOUT = Math.toIntExact(TimeUnit.SECONDS.toMillis(10));
 	@Getter
@@ -22,7 +22,7 @@ public class UdpTestServer implements AutoCloseable {
 	@Getter
 	private String date;
 
-	public UdpTestServer() throws SocketException {
+	public UDPTestServer() throws SocketException {
 		this.socket = new DatagramSocket(0);
 		socket.setSoTimeout(TIMEOUT);
 		updateTestServerResponse();

@@ -15,7 +15,7 @@ import java.nio.channels.Selector;
 import java.util.concurrent.ScheduledExecutorService;
 
 @Builder
-public class UdpPollingService implements PollingService {
+public class UDPPollingService implements PollingService {
 	private static final Logger logger = LogManager.getLogger();
 
 	private final InetSocketAddress serverSocketAddress;

@@ -2,7 +2,7 @@ package com.jbeacon.poll;
 
 import com.jbeacon.command.OnPollResponseCommand;
 import com.jbeacon.util.PollingTestService;
-import com.jbeacon.util.UdpTestServer;
+import com.jbeacon.util.UDPTestServer;
 import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.AutoClose;
 import org.junit.jupiter.api.BeforeAll;
@@ -15,17 +15,17 @@ import java.nio.channels.Selector;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
-public class UdpPollingServiceIT {
+public class UDPPollingServiceIT {
 
 	private static Thread serverThread;
 	@AutoClose
-	private static UdpTestServer testServer;
+	private static UDPTestServer testServer;
 	private static InetSocketAddress localhostAddress;
 	private static OnPollResponseCommand testBufferReadyForDrainingCommand;
 
 	@BeforeAll
 	static void setUp() throws SocketException {
-		testServer = new UdpTestServer();
+		testServer = new UDPTestServer();
 		localhostAddress = new InetSocketAddress(testServer.getSocket().getLocalAddress(), testServer.getSocket().getLocalPort());
 		serverThread = new Thread(testServer::startServer);
 		serverThread.start();
@@ -35,7 +35,7 @@ public class UdpPollingServiceIT {
 			assertEquals(testServer.getData().length, buffer.limit());
 			assertEquals(100, buffer.capacity());
 
-			String bufferData = new String(buffer.array(), buffer.position(), buffer.limit(), UdpTestServer.CHARSET);
+			String bufferData = new String(buffer.array(), buffer.position(), buffer.limit(), UDPTestServer.CHARSET);
 			assertEquals(testServer.getDate(), bufferData);
 		};
 	}
@@ -49,7 +49,7 @@ public class UdpPollingServiceIT {
 	void testBlockingPollBufferReadyForDraining() throws Exception {
 		testServer.updateTestServerResponse();
 
-		var blockingPoller = UdpPollingService.builder()
+		var blockingPoller = UDPPollingService.builder()
 				.serverSocketAddress(localhostAddress)
 				.outBuffer(ByteBuffer.allocate(1))
 				.inBuffer(ByteBuffer.allocate(100))
@@ -66,7 +66,7 @@ public class UdpPollingServiceIT {
 		try (Selector selector = Selector.open()) {
 			var pollSelector = new PollSelector(selector, 1000L);
 
-			var nonblockingPoller = UdpPollingService.builder()
+			var nonblockingPoller = UDPPollingService.builder()
 					.serverSocketAddress(localhostAddress)
 					.outBuffer(ByteBuffer.allocate(1))
 					.inBuffer(ByteBuffer.allocate(100))

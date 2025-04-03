@@ -3,7 +3,7 @@ package com.jbeacon.util;
 import com.jbeacon.command.OnPollResponseCommand;
 import com.jbeacon.poll.PollSelector;
 import com.jbeacon.poll.PollingService;
-import com.jbeacon.poll.UdpPollingService;
+import com.jbeacon.poll.UDPPollingService;
 import lombok.AllArgsConstructor;
 
 import java.io.IOException;
@@ -16,17 +16,17 @@ public class PollingTestService {
 	private static final int DEFAULT_OUT_BUFFER_SIZE = 1;
 	private static final int DEFAULT_IN_BUFFER_SIZE = 100;
 
-	private final UdpTestServer testServer;
+	private final UDPTestServer testServer;
 	private final InetSocketAddress serverSocketAddress;
 	private PollingService pollingService;
 
-	public PollingTestService(UdpTestServer testServer, InetSocketAddress serverSocketAddress) {
+	public PollingTestService(UDPTestServer testServer, InetSocketAddress serverSocketAddress) {
 		this.testServer = testServer;
 		this.serverSocketAddress = serverSocketAddress;
 	}
 
 	public void createNonBlockingPollingService(OnPollResponseCommand onPollResponseCommand, PollSelector pollSelector) {
-		pollingService = UdpPollingService.builder()
+		pollingService = UDPPollingService.builder()
 				.serverSocketAddress(serverSocketAddress)
 				.outBuffer(ByteBuffer.allocate(DEFAULT_OUT_BUFFER_SIZE))
 				.inBuffer(ByteBuffer.allocate(DEFAULT_IN_BUFFER_SIZE))
@@ -37,7 +37,7 @@ public class PollingTestService {
 	}
 
 	public void createBlockingPollingService(OnPollResponseCommand onPollResponseCommand) {
-		pollingService = UdpPollingService.builder()
+		pollingService = UDPPollingService.builder()
 				.serverSocketAddress(serverSocketAddress)
 				.outBuffer(ByteBuffer.allocate(DEFAULT_OUT_BUFFER_SIZE))
 				.inBuffer(ByteBuffer.allocate(DEFAULT_IN_BUFFER_SIZE))

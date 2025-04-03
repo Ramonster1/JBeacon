@@ -4,7 +4,7 @@ import com.jbeacon.aeron.util.SubscriberAndPollingTestCoordinator;
 import com.jbeacon.aeron.util.SubscriptionService;
 import com.jbeacon.command.OnPollResponseCommand;
 import com.jbeacon.util.PollingTestService;
-import com.jbeacon.util.UdpTestServer;
+import com.jbeacon.util.UDPTestServer;
 import io.aeron.Aeron;
 import io.aeron.Publication;
 import io.aeron.driver.MediaDriver;
@@ -37,17 +37,17 @@ class AeronOnPollResponseOfferCommandIT {
 
 	private static final UnsafeBuffer BUFFER = new UnsafeBuffer(BufferUtil.allocateDirectAligned(256, 64));
 	@AutoClose
-	private static UdpTestServer testServer;
+	private static UDPTestServer testServer;
 	@AutoClose
 	private static MediaDriver mediaDriver;
 	@AutoClose
 	private static Aeron aeron;
 	private static SubscriberAndPollingTestCoordinator coordinator;
 
-	private static FragmentHandler createDefaultFragmentHandlerTest(UdpTestServer server) {
+	private static FragmentHandler createDefaultFragmentHandlerTest(UDPTestServer server) {
 		return (buf, offset, length, header) -> {
 			final String message = buf.getStringWithoutLengthUtf8(offset, length);
-			assertEquals(new String(server.getData(), UdpTestServer.CHARSET), message);
+			assertEquals(new String(server.getData(), UDPTestServer.CHARSET), message);
 		};
 	}
 
@@ -58,7 +58,7 @@ class AeronOnPollResponseOfferCommandIT {
 		ctx.aeronDirectoryName(mediaDriver.aeronDirectoryName());
 
 		aeron = Aeron.connect(ctx);
-		testServer = new UdpTestServer();
+		testServer = new UDPTestServer();
 		InetSocketAddress localhostAddress = new InetSocketAddress(testServer.getSocket().getLocalAddress(), testServer.getSocket().getLocalPort());
 		// This thread should terminate when testServer, which has @AutoClose, is closed
 		Thread serverThread = new Thread(testServer::startServer);
@@ -74,7 +74,7 @@ class AeronOnPollResponseOfferCommandIT {
 		FragmentHandler fragmentHandlerTest = (buffer, offset, length, header) -> {
 			final String subscriberMsg = buffer.getStringWithoutLengthUtf8(offset, length);
 
-			assertEquals(new String(testServer.getData(), UdpTestServer.CHARSET), subscriberMsg);
+			assertEquals(new String(testServer.getData(), UDPTestServer.CHARSET), subscriberMsg);
 			assertEquals(0, buffer.byteBuffer().position());
 			assertEquals(testServer.getData().length, length);
 		};
