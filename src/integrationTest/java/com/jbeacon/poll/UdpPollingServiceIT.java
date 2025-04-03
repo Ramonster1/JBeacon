@@ -1,6 +1,7 @@
 package com.jbeacon.poll;
 
 import com.jbeacon.command.OnPollResponseCommand;
+import com.jbeacon.util.PollingTestService;
 import com.jbeacon.util.UdpTestServer;
 import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.AutoClose;
@@ -81,19 +82,9 @@ public class UdpPollingServiceIT {
 
 	@Test
 	void testBlockingPollBuffersAreResetForMultipleRequests() throws Exception {
-		var blockingPoller = UdpPollingService.builder()
-				.serverSocketAddress(localhostAddress)
-				.outBuffer(ByteBuffer.allocate(1))
-				.inBuffer(ByteBuffer.allocate(100))
-				.onPollResponseCommand(testBufferReadyForDrainingCommand)
-				.blocks(true)
-				.build();
-
-		// test
-		for (int i = 0; i < 10; i++) {
-			testServer.updateTestServerResponse();
-			blockingPoller.poll();
-		}
+		PollingTestService blockingPollTestService = new PollingTestService(testServer, localhostAddress);
+		blockingPollTestService.createBlockingPollingService(testBufferReadyForDrainingCommand);
+		blockingPollTestService.pollRepeatedly();
 	}
 
 	@Test
@@ -101,20 +92,9 @@ public class UdpPollingServiceIT {
 		try (Selector selector = Selector.open()) {
 			var pollSelector = new PollSelector(selector, 1000L);
 
-			var nonblockingPoller = UdpPollingService.builder()
-					.serverSocketAddress(localhostAddress)
-					.outBuffer(ByteBuffer.allocate(1))
-					.inBuffer(ByteBuffer.allocate(100))
-					.onPollResponseCommand(testBufferReadyForDrainingCommand)
-					.blocks(false)
-					.pollSelector(pollSelector)
-					.build();
-
-			// test
-			for (int i = 0; i < 10; i++) {
-				testServer.updateTestServerResponse();
-				nonblockingPoller.poll();
-			}
+			PollingTestService nonBlockingPollTestService = new PollingTestService(testServer, localhostAddress);
+			nonBlockingPollTestService.createNonBlockingPollingService(testBufferReadyForDrainingCommand, pollSelector);
+			nonBlockingPollTestService.pollRepeatedly();
 		}
 	}
 }
