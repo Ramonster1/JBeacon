@@ -10,6 +10,22 @@ import org.apache.logging.log4j.Logger;
 import java.nio.ByteBuffer;
 
 
+/**
+ * Represents an implementation of the {@link OnPollResponseCommand} interface that encapsulates a command
+ * using the Aeron {@link Publication#tryClaim} mechanism for efficient message delivery with a claimed buffer section.
+ * <p>
+ * This record facilitates an interaction between a flipped {@link ByteBuffer} and an Aeron {@link Publication}
+ * by claiming a section of the Aeron publication buffer and writing the provided ByteBuffer content directly into it.
+ * After writing, the buffer claim is committed to finalize the message delivery.
+ * <p>
+ * The command processes the result of the {@link Publication#tryClaim} operation and handles various scenarios such as
+ * publication backpressure, connection issues, or reaching position limits. In cases of transient states like
+ * administrative actions, the command retries the operation. Critical states like a closed publication or position overflow result
+ * in an exception being thrown.
+ * <p>
+ * This record is particularly useful in Aeron-based systems to efficiently send incoming data by directly utilizing
+ * a claimed segment of the Aeron publication buffer.
+ */
 public record AeronOnPollResponseTryClaimCommand(Publication publication,
 												 BufferClaim bufferClaim) implements OnPollResponseCommand {
 	private static final Logger logger = LogManager.getLogger();

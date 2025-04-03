@@ -23,13 +23,8 @@ import java.util.function.Consumer;
  * UDP polling mechanisms or systems where responses need to be offered directly to an Aeron publication.
  */
 public record AeronOnPollResponseOfferCommand(Publication publication,
-											  DirectBuffer directBuffer,
-											  Consumer<Long> responseCallback) implements OnPollResponseCommand {
+											  DirectBuffer directBuffer) implements OnPollResponseCommand {
 	private static final Logger logger = LogManager.getLogger();
-
-	public AeronOnPollResponseOfferCommand(Publication publication, DirectBuffer directBuffer) {
-		this(publication, directBuffer, null);
-	}
 
 	/**
 	 * Executes the command by wrapping the provided {@link ByteBuffer} into a {@link DirectBuffer}
