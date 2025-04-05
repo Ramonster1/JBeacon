@@ -1,0 +1,44 @@
+plugins {
+    id 'java-library'
+}
+
+group = 'com.jbeacon'
+version = '1.0-SNAPSHOT'
+
+repositories {
+    mavenCentral()
+}
+
+dependencies {
+
+    // Lombok
+    compileOnly "org.projectlombok:lombok:${lombokVersion}"
+    annotationProcessor "org.projectlombok:lombok:${lombokVersion}"
+    testCompileOnly "org.projectlombok:lombok:${lombokVersion}"
+    testAnnotationProcessor "org.projectlombok:lombok:${lombokVersion}"
+    // Unit test dependencies
+    testImplementation platform("org.junit:junit-bom:${junitBomVersion}")
+    testImplementation 'org.junit.jupiter:junit-jupiter'
+    testRuntimeOnly 'org.junit.platform:junit-platform-launcher'
+    testImplementation "org.mockito:mockito-core:${mockitoVersion}"
+    testImplementation "org.mockito:mockito-junit-jupiter:${mockitoVersion}"
+
+    api project(':core')
+    api project(':aeron')
+}
+
+// Common JVM arguments
+def jvmArguments = [
+        '--add-opens', 'java.base/jdk.internal.misc=ALL-UNNAMED',
+        '--add-opens', 'java.base/java.util.zip=ALL-UNNAMED'
+]
+
+// Share JVM arguments across test tasks
+tasks.withType(JavaExec).configureEach {
+    jvmArgs(['-XX:+EnableDynamicAgentLoading'] + jvmArguments)
+}
+
+test {
+    useJUnitPlatform()
+    jvmArgs(['-XX:+EnableDynamicAgentLoading'] + jvmArguments)
+}

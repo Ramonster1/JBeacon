@@ -1,0 +1,49 @@
+plugins {
+    id 'java-library'
+}
+
+group = 'com.jbeacon'
+version = '1.0-SNAPSHOT'
+
+repositories {
+    mavenCentral()
+}
+
+
+// Common JVM arguments
+def jvmArguments = [
+        '--add-opens', 'java.base/jdk.internal.misc=ALL-UNNAMED',
+        '--add-opens', 'java.base/java.util.zip=ALL-UNNAMED'
+]
+
+dependencies {
+    // Core libraries
+    api "org.apache.logging.log4j:log4j-api:${log4jVersion}"
+    api "org.apache.logging.log4j:log4j-core:${log4jVersion}"
+    api "com.lmax:disruptor:${disruptorVersion}"
+  //  implementation "io.aeron:aeron-all:${aeronVersion}"
+
+    // Lombok
+    compileOnlyApi "org.projectlombok:lombok:${lombokVersion}"
+    annotationProcessor "org.projectlombok:lombok:${lombokVersion}"
+
+    testCompileOnly "org.projectlombok:lombok:${lombokVersion}"
+    testAnnotationProcessor "org.projectlombok:lombok:${lombokVersion}"
+
+    // Unit test dependencies
+    testImplementation platform("org.junit:junit-bom:${junitBomVersion}")
+    testImplementation 'org.junit.jupiter:junit-jupiter'
+    testRuntimeOnly 'org.junit.platform:junit-platform-launcher'
+    testImplementation "org.mockito:mockito-core:${mockitoVersion}"
+    testImplementation "org.mockito:mockito-junit-jupiter:${mockitoVersion}"
+}
+
+// Share JVM arguments across test tasks
+tasks.withType(JavaExec).configureEach {
+    jvmArgs jvmArguments
+}
+
+test {
+    useJUnitPlatform()
+    jvmArgs(['-XX:+EnableDynamicAgentLoading'] + jvmArguments)
+}

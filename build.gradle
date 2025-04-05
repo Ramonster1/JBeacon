@@ -5,8 +5,10 @@ plugins {
 group = 'com.jbeacon'
 version = '1.0-SNAPSHOT'
 
-repositories {
-    mavenCentral()
+allprojects {
+    repositories {
+        mavenCentral()
+    }
 }
 
 // Dependency versions as constants
