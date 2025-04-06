@@ -1,4 +1,4 @@
-package com.pfj.poll;
+package com.jbeacon.poll;
 
 import java.io.IOException;
 

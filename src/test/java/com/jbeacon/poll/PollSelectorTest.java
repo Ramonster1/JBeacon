@@ -1,6 +1,6 @@
-package com.pfj.poll;
+package com.jbeacon.poll;
 
-import com.pfj.command.PollResponseCommand;
+import com.jbeacon.command.OnPollResponseCommand;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
 
@@ -21,7 +21,7 @@ class PollSelectorTest {
 		SelectionKey selectionKeyMock = Mockito.mock(SelectionKey.class);
 		DatagramChannel channelMock = Mockito.mock(DatagramChannel.class);
 		ProcessPollAttachment attachmentMock = Mockito.mock(ProcessPollAttachment.class);
-		PollResponseCommand commandMock = Mockito.mock(PollResponseCommand.class);
+		OnPollResponseCommand commandMock = Mockito.mock(OnPollResponseCommand.class);
 		ByteBuffer inBuffer = ByteBuffer.allocate(1024);
 
 		when(selectorMock.select(anyLong())).thenReturn(1);
@@ -30,7 +30,7 @@ class PollSelectorTest {
 		when(selectionKeyMock.channel()).thenReturn(channelMock);
 		when(selectionKeyMock.attachment()).thenReturn(attachmentMock);
 		when(attachmentMock.buffer()).thenReturn(inBuffer);
-		when(attachmentMock.pollResponseCommand()).thenReturn(commandMock);
+		when(attachmentMock.onPollResponseCommand()).thenReturn(commandMock);
 
 		PollSelector pollSelector = new PollSelector(selectorMock, 5000L);
 

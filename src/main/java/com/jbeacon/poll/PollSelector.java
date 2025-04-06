@@ -1,4 +1,4 @@
-package com.pfj.poll;
+package com.jbeacon.poll;
 
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -27,7 +27,7 @@ public record PollSelector(Selector selector, Long timeout) implements AutoClose
 					logger.info("Received response buffer: {}", buffer);
 					logger.debug("Response buffer: {}", buffer.array());
 
-					attachment.pollResponseCommand().execute(buffer);
+					attachment.onPollResponseCommand().execute(buffer);
 				}
 			}
 		}

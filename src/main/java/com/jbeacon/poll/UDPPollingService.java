@@ -1,7 +1,7 @@
-package com.pfj.poll;
+package com.jbeacon.poll;
 
-import com.pfj.command.PollResponseCommand;
-import com.pfj.exception.SelectorClosedException;
+import com.jbeacon.command.OnPollResponseCommand;
+import com.jbeacon.exception.SelectorClosedException;
 import lombok.Builder;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -15,7 +15,7 @@ import java.nio.channels.Selector;
 import java.util.concurrent.ScheduledExecutorService;
 
 @Builder
-public class UdpPollingService implements PollingService {
+public class UDPPollingService implements PollingService {
 	private static final Logger logger = LogManager.getLogger();
 
 	private final InetSocketAddress serverSocketAddress;
@@ -23,7 +23,7 @@ public class UdpPollingService implements PollingService {
 	private final ByteBuffer outBuffer;
 	@Builder.Default
 	private final boolean blocks = true;
-	private final PollResponseCommand pollResponseCommand;
+	private final OnPollResponseCommand onPollResponseCommand;
 	private PollSelector pollSelector;
 	private ScheduledExecutorService scheduledExecutor;
 
@@ -31,6 +31,11 @@ public class UdpPollingService implements PollingService {
 		logger.info("Polling in {} mode", blocks ? "blocking" : "non-blocking");
 
 		try (DatagramChannel datagramChannel = DatagramChannel.open()) {
+			if (!blocks && (pollSelector == null || pollSelector.selector() == null || !pollSelector.selector().isOpen())) {
+				logger.warn("Selector is null or not open");
+				throw new SelectorClosedException("Selector is " + (pollSelector == null ? "null" : "closed"));
+			}
+
 			InetSocketAddress inetSocketAddress = new InetSocketAddress(0);
 
 			logger.debug("Binding to {}", inetSocketAddress);
@@ -49,16 +54,11 @@ public class UdpPollingService implements PollingService {
 
 				logger.info("Received response with buffer {}", outBuffer);
 
-				pollResponseCommand.execute(inBuffer);
+				onPollResponseCommand.execute(inBuffer);
 			} else {
-				if (pollSelector == null || pollSelector.selector() == null || !pollSelector.selector().isOpen()) {
-					logger.warn("Selector is null or not open");
-					throw new SelectorClosedException("Selector is null or closed");
-				}
-
 				Selector selector = pollSelector.selector();
 				datagramChannel.configureBlocking(false);
-				ProcessPollAttachment attachment = new ProcessPollAttachment(pollResponseCommand, inBuffer);
+				ProcessPollAttachment attachment = new ProcessPollAttachment(onPollResponseCommand, inBuffer);
 				datagramChannel.register(selector, SelectionKey.OP_READ, attachment);
 
 				logger.info("Registered channel, waiting for response");

@@ -1,6 +1,6 @@
-package com.pfj.poll.scheduling;
+package com.jbeacon.poll.scheduling;
 
-import com.pfj.poll.PollingService;
+import com.jbeacon.poll.PollingService;
 import lombok.Builder;
 import lombok.Getter;
 import org.apache.logging.log4j.LogManager;

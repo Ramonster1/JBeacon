@@ -1,4 +1,4 @@
-package com.pfj.exception;
+package com.jbeacon.exception;
 
 import java.io.IOException;
 
