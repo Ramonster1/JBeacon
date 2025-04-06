@@ -1,32 +1,97 @@
 plugins {
-    id 'java'
+    id 'java-library'
 }
 
-group = 'org.jmatrix'
+group = 'com.jbeacon'
 version = '1.0-SNAPSHOT'
 
 repositories {
     mavenCentral()
 }
 
+// Dependency versions as constants
+ext {
+    log4jVersion = '2.23.1'
+    disruptorVersion = '4.0.0'
+    aeronVersion = '1.47.4'
+    lombokVersion = '1.18.36'
+    mockitoVersion = '5.16.0'
+    junitBomVersion = '5.11.0-M2'
+}
+
+// Common JVM arguments
+def jvmArguments = [
+        '--add-opens', 'java.base/jdk.internal.misc=ALL-UNNAMED',
+        '--add-opens', 'java.base/java.util.zip=ALL-UNNAMED'
+]
+
+sourceSets {
+    integrationTest {
+        compileClasspath += sourceSets.main.output + configurations.testRuntimeClasspath
+        runtimeClasspath += output + compileClasspath
+    }
+}
+
+configurations {
+    integrationTestImplementation.extendsFrom testImplementation
+    integrationTestRuntimeOnly.extendsFrom testRuntimeOnly
+    integrationTestCompileOnly.extendsFrom testCompileOnly
+    integrationTestAnnotationProcessor.extendsFrom testAnnotationProcessor
+}
+
 dependencies {
-    implementation 'org.apache.logging.log4j:log4j-api:2.23.1'
-    implementation 'org.apache.logging.log4j:log4j-core:2.23.1'
-    implementation 'com.lmax:disruptor:4.0.0'
+    // Core libraries
+    implementation "org.apache.logging.log4j:log4j-api:${log4jVersion}"
+    implementation "org.apache.logging.log4j:log4j-core:${log4jVersion}"
+    implementation "com.lmax:disruptor:${disruptorVersion}"
+    implementation "io.aeron:aeron-all:${aeronVersion}"
 
-    compileOnly 'org.projectlombok:lombok:1.18.36'
-    annotationProcessor 'org.projectlombok:lombok:1.18.36'
+    // Lombok
+    compileOnly "org.projectlombok:lombok:${lombokVersion}"
+    annotationProcessor "org.projectlombok:lombok:${lombokVersion}"
+    testCompileOnly "org.projectlombok:lombok:${lombokVersion}"
+    testAnnotationProcessor "org.projectlombok:lombok:${lombokVersion}"
 
-    testCompileOnly 'org.projectlombok:lombok:1.18.36'
-    testAnnotationProcessor 'org.projectlombok:lombok:1.18.36'
+    // Integration test dependencies
+    integrationTestImplementation "org.projectlombok:lombok:${lombokVersion}"
+    integrationTestAnnotationProcessor "org.projectlombok:lombok:${lombokVersion}"
+    integrationTestImplementation platform("org.junit:junit-bom:${junitBomVersion}")
+    integrationTestImplementation 'org.junit.jupiter:junit-jupiter'
+    integrationTestRuntimeOnly 'org.junit.platform:junit-platform-launcher'
+    integrationTestImplementation "org.mockito:mockito-core:${mockitoVersion}"
 
-    testImplementation(platform('org.junit:junit-bom:5.11.0-M2'))
+    // Unit test dependencies
+    testImplementation platform("org.junit:junit-bom:${junitBomVersion}")
     testImplementation 'org.junit.jupiter:junit-jupiter'
     testRuntimeOnly 'org.junit.platform:junit-platform-launcher'
-    testImplementation 'org.mockito:mockito-core:5.16.0'
+    testImplementation "org.mockito:mockito-core:${mockitoVersion}"
+    testImplementation "org.mockito:mockito-junit-jupiter:${mockitoVersion}"
+}
+
+// Share JVM arguments across test tasks
+tasks.withType(JavaExec).configureEach {
+    jvmArgs jvmArguments
 }
 
 test {
     useJUnitPlatform()
-    jvmArgs("-XX:+EnableDynamicAgentLoading")
+    jvmArgs(['-XX:+EnableDynamicAgentLoading'] + jvmArguments)
 }
+
+// Integration test task
+tasks.register('integrationTest', Test) {
+    description = 'Runs integration tests.'
+    group = 'verification'
+    testClassesDirs = sourceSets.integrationTest.output.classesDirs
+    classpath = sourceSets.integrationTest.runtimeClasspath
+    shouldRunAfter test
+    useJUnitPlatform()
+    jvmArgs(['-XX:+EnableDynamicAgentLoading'] + jvmArguments)
+
+    testLogging {
+        events "passed"
+    }
+}
+
+// Ensure integration tests are run during 'check'
+check.dependsOn integrationTest
