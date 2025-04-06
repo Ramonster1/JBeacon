@@ -30,7 +30,8 @@ dependencies {
 // Common JVM arguments
 def jvmArguments = [
         '--add-opens', 'java.base/jdk.internal.misc=ALL-UNNAMED',
-        '--add-opens', 'java.base/java.util.zip=ALL-UNNAMED'
+        '--add-opens', 'java.base/java.util.zip=ALL-UNNAMED',
+        '--add-exports', 'java.base/jdk.internal.misc=ALL-UNNAMED'
 ]
 
 // Share JVM arguments across test tasks

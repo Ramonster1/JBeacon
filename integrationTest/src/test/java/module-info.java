@@ -7,13 +7,13 @@ module com.jbeacon.integrationTest {
 	requires io.aeron.all;
 	requires org.junit.jupiter.api;
 
-	// Aeron modules
-	requires java.compiler;
-	requires java.management;
-	requires jdk.unsupported;
-
 	requires static lombok;
 
 	requires com.jbeacon.core;
 	requires com.jbeacon.aeron;
 }
+/*
+TODO
+ Unfortunately, Aeron doesn't yet fully support JPMS https://github.com/aeron-io/agrona/issues/284.
+ When it does than JBeacon can be fully modularised.
+ */
