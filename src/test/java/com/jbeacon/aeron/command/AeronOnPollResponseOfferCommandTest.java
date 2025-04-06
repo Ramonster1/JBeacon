@@ -1,32 +1,71 @@
 package com.jbeacon.aeron.command;
 
 import io.aeron.Publication;
-import org.agrona.BufferUtil;
-import org.agrona.concurrent.UnsafeBuffer;
+import io.aeron.exceptions.AeronException;
+import org.agrona.MutableDirectBuffer;
 import org.junit.jupiter.api.Test;
-import org.mockito.Mockito;
+import org.junit.jupiter.api.extension.ExtendWith;
+import org.mockito.Mock;
+import org.mockito.junit.jupiter.MockitoExtension;
 
 import java.nio.ByteBuffer;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.mockito.Mockito.when;
+import static org.mockito.Mockito.*;
+import static org.mockito.Mockito.verify;
 
+@ExtendWith(MockitoExtension.class)
 class AeronOnPollResponseOfferCommandTest {
-	private static final UnsafeBuffer BUFFER = new UnsafeBuffer(BufferUtil.allocateDirectAligned(256, 64));
+	@Mock
+	private Publication mockPublication;
+	@Mock
+	private MutableDirectBuffer mockDirectBuffer;
+	private final ByteBuffer testBuffer = ByteBuffer.wrap("testData".getBytes());
 
 	@Test
-	void testOfferResponseCallbackOnBackPressureFailure() {
-		try (Publication publicationMock = Mockito.mock(Publication.class)) {
-			var onPollResponseTest = new AeronOnPollResponseOfferCommand(publicationMock, BUFFER,
-					(resultingPosition) -> assertEquals(Publication.BACK_PRESSURED, resultingPosition));
-			byte[] bytes = "Test message".getBytes();
-			ByteBuffer testBuffer = ByteBuffer.wrap(bytes);
-			BUFFER.wrap(ByteBuffer.wrap(bytes));
+	void testExecute_SuccessfulClaim() {
+		when(mockPublication.offer(mockDirectBuffer, 0, testBuffer.limit())).thenReturn(1L);
 
-			long expectedPosition = Publication.BACK_PRESSURED;
-			when(publicationMock.offer(BUFFER, 0, bytes.length)).thenReturn(expectedPosition);
+		AeronOnPollResponseOfferCommand command = new AeronOnPollResponseOfferCommand(mockPublication, mockDirectBuffer);
+		command.execute(testBuffer);
 
-			onPollResponseTest.execute(testBuffer);
-		}
+		verify(mockPublication).offer(mockDirectBuffer,  0, testBuffer.limit());
+	}
+
+	@Test
+	void testExecute_AdminAction() {
+		when(mockPublication.offer(mockDirectBuffer, 0, testBuffer.limit()))
+				.thenReturn(Publication.ADMIN_ACTION)
+				.thenReturn(1L);
+
+		AeronOnPollResponseOfferCommand command = new AeronOnPollResponseOfferCommand(mockPublication, mockDirectBuffer);
+		command.execute(testBuffer);
+
+		verify(mockPublication, times(2)).offer(mockDirectBuffer, 0, testBuffer.limit());
+	}
+
+	@Test
+	void testExecute_PublicationClosed() {
+		when(mockPublication.offer(mockDirectBuffer, 0, testBuffer.limit())).thenReturn(Publication.CLOSED);
+
+		AeronOnPollResponseOfferCommand command = new AeronOnPollResponseOfferCommand(mockPublication, mockDirectBuffer);
+
+		org.junit.jupiter.api.Assertions.assertThrows(
+				AeronException.class,
+				() -> command.execute(testBuffer),
+				"Publication is closed"
+		);
+	}
+
+	@Test
+	void testExecute_MaxPositionExceeded() {
+		when(mockPublication.offer(mockDirectBuffer, 0, testBuffer.limit())).thenReturn(Publication.MAX_POSITION_EXCEEDED);
+
+		AeronOnPollResponseOfferCommand command = new AeronOnPollResponseOfferCommand(mockPublication, mockDirectBuffer);
+
+		org.junit.jupiter.api.Assertions.assertThrows(
+				AeronException.class,
+				() -> command.execute(testBuffer),
+				"Publication reached max position"
+		);
 	}
 }
