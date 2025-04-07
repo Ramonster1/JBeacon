@@ -11,19 +11,26 @@ import java.nio.ByteBuffer;
 
 
 /**
- * Represents an implementation of the {@link OnPollResponseCommand} interface that encapsulates a command
- * using the Aeron {@link Publication#offer} mechanism for message delivery.
+ * Represents an implementation of the {@link OnPollResponseCommand} interface utilizing the Aeron
+ * {@link Publication#offer} mechanism for message delivery.
  * <p>
  * This record facilitates interaction between a flipped {@link ByteBuffer} and an Aeron {@link Publication}
- * by wrapping the buffer content into a {@link DirectBuffer} and making an offer call to the publication.
- * The command processes the result of the {@link Publication#offer} operation and handles various outcomes,
- * including scenarios such as backpressure, connection issues, administrative actions, or reaching position limits.
+ * by offering the data contained in the byte buffer to the publication. It handles various states of the
+ * Aeron publication and acts accordingly based on the response.
  * <p>
- * In the event of a transient state like an administrative action, the command retries the operation until
- * a terminal state is reached or the operation succeeds. Terminal states such as a closed publication or
- * exceeding the maximum allowed position result in exceptions being thrown.
+ * The command processes various outcomes of the {@link Publication#offer} operation, including:
+ * - Successful offer: The data is delivered to the publication.
+ * - NOT_CONNECTED: Logs an informational message indicating the publication is not connected.
+ * - BACK_PRESSURED: Logs an informational message when the publication is experiencing backpressure.
+ * - ADMIN_ACTION: Retries the operation due to an administrative action (e.g., log rotation).
+ * - CLOSED: Throws a fatal {@link AeronException} indicating the publication is closed.
+ * - MAX_POSITION_EXCEEDED: Throws a fatal {@link AeronException} indicating the publication has reached the maximum allowed position.
+ * - Unrecognized response: Logs a warning with the unknown response value.
  * <p>
- * If Publication.BACK_PRESSURED is returned from offer(), then the response from the poll will be ignored.
+ * This command will retry the offer operation in the case of a ADMIN_ACTION until a terminal state is reached or the operation succeeds.
+ *
+ * @param publication  Defines the Aeron publication to operate on.
+ * @param directBuffer The Aeron {@link DirectBuffer} that wraps the {@link ByteBuffer} for data transfer within the publication.
  */
 public record AeronOnPollResponseOfferCommand(Publication publication,
 											  DirectBuffer directBuffer) implements OnPollResponseCommand {
