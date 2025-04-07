@@ -11,21 +11,27 @@ import java.nio.ByteBuffer;
 
 
 /**
- * Represents an implementation of the {@link OnPollResponseCommand} interface that encapsulates a command
- * using the Aeron {@link Publication#tryClaim} mechanism for efficient message delivery with a claimed buffer section.
+ * Represents an implementation of the {@link OnPollResponseCommand} interface utilizing the Aeron
+ * {@link Publication#tryClaim} mechanism for message delivery.
  * <p>
- * This record facilitates an interaction between a flipped {@link ByteBuffer} and an Aeron {@link Publication}
- * by claiming a section of the Aeron publication buffer and writing the provided ByteBuffer content directly into it.
- * After writing, the buffer claim is committed to finalize the message delivery.
+ * This record facilitates interaction between a flipped {@link ByteBuffer} and an Aeron {@link Publication}
+ * by attempting to claim a buffer of a specified size within the publication. If the claim is successful,
+ * the buffer content is copied, and the claim is committed. If not, appropriate actions are taken based on
+ * the response from the tryClaim operation.
  * <p>
- * The command processes the result of the {@link Publication#tryClaim} operation and handles various scenarios such as
- * publication backpressure, connection issues, or reaching position limits. In cases of transient states like
- * administrative actions, the command retries the operation. Critical states like a closed publication or position overflow result
- * in an exception being thrown.
+ * The command processes various outcomes of the {@link Publication#tryClaim} operation, including:
+ * - Successful claim: Copies data to the claimed buffer and commits it.
+ * - NOT_CONNECTED: Logs an informational message indicating the publication is not connected.
+ * - BACK_PRESSURED: Logs an informational message when the publication is experiencing backpressure.
+ * - ADMIN_ACTION: Retries the operation due to an administrative action (e.g., log rotation).
+ * - CLOSED: Throws a fatal {@link AeronException} indicating the publication is closed.
+ * - MAX_POSITION_EXCEEDED: Throws a fatal {@link AeronException} indicating the publication has reached the maximum allowed position.
+ * - Unrecognized response: Logs a warning with the unknown response value.
  * <p>
- * If Publication.BACK_PRESSURED is returned from tryClaim(), then the response from the poll will be ignored.
- * <p>
- * The Publication.tryClaim() method can provide lower-latency than the Publication.offer().
+ * This command will retry the tryClaim operation in the case of a ADMIN_ACTION until a terminal state is reached or the operation succeeds.
+ *
+ * @param publication Defines the Aeron publication to operate on.
+ * @param bufferClaim The buffer claim instance used for data transfer within the Aeron publication.
  */
 public record AeronOnPollResponseTryClaimCommand(Publication publication,
 												 BufferClaim bufferClaim) implements OnPollResponseCommand {
