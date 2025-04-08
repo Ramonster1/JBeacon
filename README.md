@@ -13,6 +13,20 @@ JBeacon now provides out-of-the-box features to integrate with the <b>Aeron</b> 
 JBeacon uses JDK 21.
 
 ---
+## Use JBeacon
+JBeacon is publicly hosted on the Maven Central Repository. Follow [this link](https://central.sonatype.com/artifact/io.github.ramonster1/jbeacon/overview) for more details on how to use JBeacon in your project.
+
+Apache Maven snippet:
+```maven
+<dependency>
+   <groupId>io.github.ramonster1</groupId>
+      <artifactId>jbeacon</artifactId>
+   <version>1.0.0</version>
+</dependency>
+```
+
+
+---
 
 ## Features
 
