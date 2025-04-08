@@ -1,10 +1,12 @@
 # JBeacon
 
 ## Overview
-JBeacon is a <b>Java network polling library</b> implemented using the Java NIO package. JBeacon supports blocking & non-blocking network polling at a consistent rate using the ScheduledExecutorService.
+JBeacon is a <b>Java network polling library</b> implemented using the Java NIO package. It supports blocking & non-blocking network polling with Aeron messaging and scheduling support.
 Currently, only UDP polling is supported with further features coming soon.
 
-The Java NIO package is a modern, feature-rich networking library that offers better performance than the traditional IO package. However, it also has some increased complexity. The goal of JBeacon is take away some of the complexity of network polling whilst keeping the performance gains. However, some knowledge of NIO, especially ByteBuffers, will still be helpful.
+Network polling is an important tool in many applications such as live price feeds, status monitoring etc.
+
+The Java NIO package is a modern networking library that offers better performance than the traditional IO package. However, it also has some increased complexity. The goal of JBeacon is take away some of the complexity of network polling whilst keeping the performance gains. However, some knowledge of NIO, especially ByteBuffers & Selectors, will still be helpful.
 
 JBeacon now provides out-of-the-box features to integrate with the <b>Aeron</b> library for sending response data to an Aeron publication. The Aeron library provides low-latency & reliable UDP unicast, UDP multicast, and IPC message transport. 
 
@@ -14,11 +16,11 @@ JBeacon uses JDK 21.
 
 ## Features
 
-- **Scheduling**: Uses `ScheduledExecutorService` to execute polling to run after a given delay, or to execute periodically.
+- **Scheduling**: Uses `ScheduledExecutorService` to execute polling after a given delay, or to execute periodically.
 - **UDP Communication**: Uses `DatagramChannel` to send and receive messages via UDP.
 - **Blocking and Non-blocking Modes**: Configurable behavior to execute polling in either blocking or non-blocking mode.
-- **ByteBuffer management**: JBeacon automatically prepares ByteBuffers for filling and draining (reading and writing), so you don't have to.  
-- **Pluggability**: Leverages the `PollResponseCommand` interface to execute custom logic when receiving network responses (which implements the Command behavioral design pattern).
+- **ByteBuffer management**: JBeacon automatically prepares ByteBuffers for filling and draining (writing and reading), so you don't have to.  
+- **Pluggability**: Leverages the `PollResponseCommand` functional interface to execute custom logic when receiving network responses (which implements the Command behavioral design pattern).
 - **Logging**: Utilizes Apache Log4j2 for comprehensive logging at various levels. Currently logs in async mode by default.
 - **Aeron integration**: Uses the AeronOnPollResponse commands to either send response data to a publication using the Publication <i>offer()</i> method or the lower-latency <i>tryClaim()</i> method.
 
