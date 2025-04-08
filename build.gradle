@@ -18,6 +18,23 @@ ext {
     lombokVersion = '1.18.36'
     mockitoVersion = '5.16.0'
     junitBomVersion = '5.11.0-M2'
+
+    // ------------------------------------
+    // PUBLISHING TO SONATYPE CONFIGURATION
+    // ------------------------------------
+    COMPONENT_TYPE = "java" // "java" or "versionCatalog"
+    GROUP = 'io.github.ramonster1'
+    ARTIFACT_ID = "jbeacon"
+    VERSION = "1.0.0"
+    PUBLISHING_TYPE = "AUTOMATIC" // USER_MANAGED or AUTOMATIC
+    SHA_ALGORITHMS = ["SHA-256", "SHA-512"]
+    // sha256 and sha512 are supported but not mandatory. Only sha1 is mandatory but it is supported by default.
+    DESC = "A Java network polling library using NIO with Aeron messaging and scheduling support."
+    LICENSE = "Apache-2.0"
+    LICENSE_URL = "https://opensource.org/licenses/Apache-2.0"
+    GITHUB_REPO = "Ramonster1/JBeacon"
+    DEVELOPER_ID = "198125557"
+    DEVELOPER_NAME = "Ramon Singh"
 }
 
 // Common JVM arguments
@@ -96,3 +113,66 @@ tasks.register('integrationTest', Test) {
 
 // Ensure integration tests are run during 'check'
 check.dependsOn integrationTest
+
+// ------------------------------------
+// PUBLISHING TO SONATYPE CONFIGURATION
+// ------------------------------------
+/*Meta {
+    COMPONENT_TYPE = "java" // "java" or "versionCatalog"
+    GROUP = "com.jbeacon"
+    ARTIFACT_ID = "jbeacon"
+    VERSION = "1.0.0"
+    PUBLISHING_TYPE = "AUTOMATIC" // USER_MANAGED or AUTOMATIC
+    SHA_ALGORITHMS = ["SHA-256", "SHA-512"]
+    // sha256 and sha512 are supported but not mandatory. Only sha1 is mandatory but it is supported by default.
+    DESC = "GitHub Version Catalog Repository for Personal Projects based on Gradle"
+    LICENSE = "Apache-2.0"
+    LICENSE_URL = "https://opensource.org/licenses/Apache-2.0"
+    GITHUB_REPO = "Ramonster1/JBeacon"
+    DEVELOPER_ID = "198125557"
+    DEVELOPER_NAME = "Ramon Singh"
+}*/
+
+
+def sonatypeUsername = project.findProperty("sonatypeUsername") // this is defined in ~/.gradle/gradle.properties
+def sonatypePassword = project.findProperty("sonatypePassword") // this is defined in ~/.gradle/gradle.properties
+
+sonatypeCentralPublishExtension {
+    // Set group ID, artifact ID, version, and other publication details
+    groupId = GROUP
+    artifactId = ARTIFACT_ID
+    version = VERSION
+    componentType = COMPONENT_TYPE // "java" or "versionCatalog"
+    publishingType = PUBLISHING_TYPE // USER_MANAGED or AUTOMATIC
+
+    // Set username and password for Sonatype repository
+    username = "Y3lHYEi+" // System.getenv("SONATYPE_USERNAME") ?: sonatypeUsername
+    password = "ZPyJMHeTWee9NGMVUnRyicHabu8BPydO8Dh9FQXpgUon"// System.getenv("SONATYPE_PASSWORD") ?: sonatypePassword
+
+    // Configure POM metadata
+    pom {
+        name = ARTIFACT_ID
+        description = DESC
+        url = "https://github.com/${GITHUB_REPO}"
+        licenses {
+            license {
+                name = LICENSE
+                url = LICENSE_URL
+            }
+        }
+        developers {
+            developer {
+                id = DEVELOPER_ID
+            }
+        }
+        scm {
+            url = "https://github.com/${GITHUB_REPO}"
+            connection = "scm:git:https://github.com/${GITHUB_REPO}"
+            developerConnection = "scm:git:https://github.com/${GITHUB_REPO}"
+        }
+        issueManagement {
+            system = ("GitHub")
+            url = "https://github.com/${GITHUB_REPO}/issues"
+        }
+    }
+}
