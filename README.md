@@ -1,16 +1,15 @@
 # JBeacon
 
 ## Overview
-JBeacon is a <b>Java network polling library</b> implemented using the Java NIO package. It supports blocking & non-blocking network polling with Aeron messaging and scheduling support.
-Currently, only UDP polling is supported with further features coming soon.
+JBeacon is a <b>Java network polling library</b> designed to simplify the complexities of network polling while delivering enhanced performance through the Java NIO package. This library supports both blocking and non-blocking network polling, and is equipped with Aeron messaging and scheduling capabilities. Currently, JBeacon focuses on UDP polling, with additional features anticipated in future updates.
 
-Network polling is an important tool in many applications such as live price feeds, status monitoring etc.
+In the realm of network applications, polling is a crucial mechanism, particularly for tasks such as live price feeds and status monitoring.
 
-The Java NIO package is a modern networking library that offers better performance than the traditional IO package. However, it also has some increased complexity. The goal of JBeacon is take away some of the complexity of network polling whilst keeping the performance gains. However, some knowledge of NIO, especially ByteBuffers & Selectors, will still be helpful.
+The Java NIO package, known for its superior performance compared to traditional IO methods, introduces a level of complexity that JBeacon seeks to mitigate. While the library significantly streamlines network polling, familiarity with NIO, especially concerning ByteBuffers and Selectors, remains advantageous for developers. The library user will need to pass their own ByteBuffer objects to the library, so knowledge of ByteBuffers is required to correctly allocate the ByteBuffer capacity, and whether to use a direct or indirect buffer. However, JBeacon does manage the filling and draining of the buffer.
 
-JBeacon now provides out-of-the-box features to integrate with the <b>Aeron</b> library for sending response data to an Aeron publication. The Aeron library provides low-latency & reliable UDP unicast, UDP multicast, and IPC message transport. 
+Moreover, JBeacon seamlessly integrates with the <b>Aeron library</b>, enabling the transmission of response data to an Aeron publication. The Aeron library is well-regarded for its <b>low-latency</b> and <b>reliable message transport</b> capabilities across UDP unicast, UDP multicast, and IPC channels.
 
-JBeacon uses JDK 21.
+Utilising JDK 21, JBeacon is positioned as a robust tool for developers seeking an efficient and effective approach to network polling. The library not only enhances performance but also reduces the inherent complexities, thus empowering developers to focus on building innovative applications.
 
 ---
 ## Declare JBeacon as a dependency
